@@ -1,85 +1,293 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Macroeconomics Data Portal</title>
-    <link rel="preconnect" href="https://api.worldbank.org">
-    <link href="assets/styles.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
-  <body>
-    <header class="app-header">
-      <h1>Macroeconomics Data Portal</h1>
-      <p>World Bank indicators for selected countries</p>
-    </header>
-    <section class="controls">
-      <div class="search">
-        <label for="country-search">Search country</label>
-        <input id="country-search" list="countries-list" placeholder="Type a country name">
-        <datalist id="countries-list"></datalist>
-        <button id="add-country">Add country</button>
-      </div>
-      <div class="compare-tools">
-        <button id="toggle-compare" class="secondary-btn">Enable Comparison Mode</button>
-      </div>
-    </section>
-    <section id="compare-section" class="compare-container hidden">
-      <div class="compare-header">
-        <h3>A-Level Economic Comparison</h3>
-        <p>Compare trends between two countries to analyze development gaps or policy effectiveness.</p>
-      </div>
-      <div class="compare-controls">
-        <select id="compare-1"></select>
-        <span>vs</span>
-        <select id="compare-2"></select>
-        <select id="compare-indicator">
-          <option value="NY.GDP.MKTP.KD.ZG">GDP Growth Rate (%)</option>
-          <option value="FP.CPI.TOTL.ZG">Inflation Rate (%)</option>
-          <option value="SL.UEM.TOTL.ZS">Unemployment (%)</option>
-          <option value="GC.DOD.TOTL.GD.ZS">National Debt (% of GDP)</option>
-        </select>
-        <button id="run-compare">Update Chart</button>
-      </div>
-      <div class="compare-chart">
-        <canvas id="main-compare-chart"></canvas>
-      </div>
-    </section>
-    <main id="cards" class="cards"></main>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Macro Lab — World Macro Data for Edexcel IAL Economics</title>
+<meta name="description" content="Live World Bank data, topic notes, glossary and essay frameworks for Edexcel International A Level Economics Units 2 and 4.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231C3B5A'/><path d='M7 22V10l5 7 4-7 4 7 5-7v12' stroke='%23F8F6F1' stroke-width='2' fill='none' stroke-linejoin='round'/></svg>">
+</head>
+<body>
 
-    <!-- AI Essay Assistant Sidebar/Panel -->
-    <div id="ai-assistant" class="ai-panel hidden">
-      <div class="ai-header">
-        <h3>AI Essay Assistant</h3>
-        <button id="close-ai" class="close-btn">×</button>
-      </div>
-      <div class="ai-body">
-        <p class="ai-intro">Select a country and a topic to generate an A-Level Economics essay draft using real World Bank data.</p>
-        <div class="ai-controls">
-          <label for="ai-country">Choose Country</label>
-          <select id="ai-country"></select>
-          
-          <label for="ai-prompt">What would you like to ask the AI Agent?</label>
-          <textarea id="ai-prompt" placeholder="e.g. Write an essay evaluating the impact of high inflation on the UK economy..."></textarea>
-          
-          <button id="generate-essay" class="primary-btn">Generate AI Response</button>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#dashboard">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><path d="M7 22V10l5 7 4-7 4 7 5-7v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/></svg>
+      </span>
+      <span class="brand-copy">
+        <strong>Macro Lab</strong>
+        <span>Edexcel IAL Economics · Units 2 &amp; 4</span>
+      </span>
+    </a>
+    <nav class="tabs" id="tabs" aria-label="Main sections">
+      <a href="#dashboard" data-view="dashboard">Dashboard</a>
+      <a href="#compare" data-view="compare">Compare</a>
+      <a href="#topics" data-view="topics">Topics</a>
+      <a href="#glossary" data-view="glossary">Glossary</a>
+      <a href="#essays" data-view="essays">Essay Lab</a>
+      <a href="#data" data-view="data">Data</a>
+    </nav>
+    <div class="topbar-status" id="status">
+      <span class="pulse"></span><span id="status-text">World Bank API</span>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="view" id="view-dashboard">
+    <div class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Live macroeconomics · 1990 to latest</p>
+        <h1>The world economy, in the numbers you can actually quote.</h1>
+        <p class="lede">Every figure below is pulled live from the World Bank. Use it as evidence in Unit 2 and Unit 4 essays — then follow the revision hooks to the theory that explains it.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#compare">Compare two economies</a>
+          <a class="btn btn-ghost" href="#topics">Open topic notes</a>
         </div>
-        <div id="essay-output" class="essay-content hidden">
-          <div class="essay-actions">
-            <button id="copy-essay" class="small-btn">Copy to Clipboard</button>
-          </div>
-          <div id="essay-text" class="essay-text"></div>
+      </div>
+      <div class="hero-panel">
+        <div class="panel-label">World snapshot</div>
+        <div class="world-strip" id="world-strip">
+          <div class="world-skeleton"></div><div class="world-skeleton"></div>
+          <div class="world-skeleton"></div><div class="world-skeleton"></div>
+        </div>
+        <p class="panel-foot" id="world-foot">Source: World Bank, World Development Indicators.</p>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div>
+        <h2>Country ledger</h2>
+        <p>Pin the economies you use as case studies. Data is cached locally for a week, so repeat visits are instant.</p>
+      </div>
+      <div class="country-picker">
+        <input id="country-search" list="countries-list" placeholder="Add a country…" autocomplete="off" aria-label="Search for a country">
+        <datalist id="countries-list"></datalist>
+        <button class="btn btn-small" id="add-country">Add</button>
+      </div>
+    </div>
+
+    <div class="preset-row" id="preset-row"></div>
+    <div class="country-grid" id="country-cards"></div>
+  </section>
+
+  <!-- ============ COMPARE ============ -->
+  <section class="view" id="view-compare" hidden>
+    <div class="page-head">
+      <p class="eyebrow">Data response practice</p>
+      <h1>Compare economies</h1>
+      <p class="lede">Plot up to four countries on one indicator, then read the numbers the way an examiner wants: direction, magnitude, and what it implies for policy.</p>
+    </div>
+
+    <div class="card control-card">
+      <div class="field">
+        <label class="field-label">Countries</label>
+        <div class="chip-select" id="compare-countries"></div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label class="field-label" for="compare-indicator">Indicator</label>
+          <select id="compare-indicator"></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="compare-range">Years</label>
+          <select id="compare-range">
+            <option value="10">Last 10 years</option>
+            <option value="20" selected>Last 20 years</option>
+            <option value="35">Since 1990</option>
+          </select>
         </div>
       </div>
     </div>
 
-    <button id="open-ai" class="ai-fab" title="Open AI Essay Assistant">
-      <span>AI Assistant</span>
-    </button>
+    <div class="card chart-card">
+      <div class="chart-head">
+        <div>
+          <h2 id="compare-title">GDP growth (annual %)</h2>
+          <p id="compare-sub">Loading series…</p>
+        </div>
+        <button class="btn btn-ghost btn-small" id="compare-csv">Download CSV</button>
+      </div>
+      <div class="chart-wrap"><canvas id="compare-chart"></canvas></div>
+      <div class="chart-note" id="compare-note"></div>
+    </div>
 
-    <footer class="app-footer">
-      <span>Data source: World Bank API</span>
-    </footer>
-    <script src="assets/app.js"></script>
-  </body>
+    <div class="card">
+      <div class="card-head"><h2>What the numbers show</h2><span class="badge" id="compare-year-badge">—</span></div>
+      <div class="table-wrap">
+        <table class="data-table" id="compare-stats">
+          <thead>
+            <tr><th>Country</th><th>Latest</th><th>Year</th><th>Average</th><th>Range</th><th>Change</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TOPICS ============ -->
+  <section class="view" id="view-topics" hidden>
+    <div class="page-head">
+      <p class="eyebrow">Theory map · Unit 2 &amp; Unit 4</p>
+      <h1>Topic notes</h1>
+      <p class="lede">Each note gives you the mechanism, the diagram, the chain of reasoning an examiner rewards, and the evaluation that lifts a Level 4 answer.</p>
+    </div>
+
+    <div class="segmented" id="unit-filter" role="tablist">
+      <button data-unit="all" class="is-active">All</button>
+      <button data-unit="2">Unit 2 · Macro</button>
+      <button data-unit="4">Unit 4 · Global</button>
+      <button data-unit="1">Unit 1</button>
+      <button data-unit="3">Unit 3</button>
+    </div>
+
+    <div class="topic-layout">
+      <aside class="topic-list" id="topic-list"></aside>
+      <article class="topic-detail card" id="topic-detail">
+        <div class="empty-state">Choose a topic to open the note.</div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ GLOSSARY ============ -->
+  <section class="view" id="view-glossary" hidden>
+    <div class="page-head">
+      <p class="eyebrow">Definitions · test yourself</p>
+      <h1>Glossary</h1>
+      <p class="lede">Precise definitions earn knowledge marks. Search the terms, then run a quiz that mixes definitions with live World Bank data.</p>
+    </div>
+
+    <div class="glossary-toolbar">
+      <input id="glossary-search" type="search" placeholder="Search a term, e.g. multiplier, NAIRU, J-curve…" aria-label="Search glossary">
+      <div class="segmented segmented-sm" id="glossary-cats">
+        <button data-cat="all" class="is-active">All</button>
+        <button data-cat="macro">Macro</button>
+        <button data-cat="policy">Policy</button>
+        <button data-cat="global">Global</button>
+        <button data-cat="measurement">Measures</button>
+      </div>
+    </div>
+
+    <div class="glossary-layout">
+      <div class="glossary-grid" id="glossary-grid"></div>
+      <aside class="quiz card" id="quiz">
+        <div class="quiz-head">
+          <div>
+            <h2>Quick quiz</h2>
+            <p id="quiz-sub">10 questions · definitions + data</p>
+          </div>
+          <button class="btn btn-ghost btn-small" id="quiz-restart">Restart</button>
+        </div>
+        <div id="quiz-body"></div>
+        <div class="quiz-foot" id="quiz-foot"></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ ESSAYS ============ -->
+  <section class="view" id="view-essays" hidden>
+    <div class="page-head">
+      <p class="eyebrow">Answer architecture</p>
+      <h1>Essay Lab</h1>
+      <p class="lede">Edexcel rewards a clear chain: define, apply to context, analyse in steps, then judge. Build an outline from live data, or work through the question bank.</p>
+    </div>
+
+    <div class="kaae">
+      <div class="kaae-item"><span class="kaae-tag">K</span><h3>Knowledge</h3><p>Define the concept precisely. One sentence, no padding.</p></div>
+      <div class="kaae-item"><span class="kaae-tag">A</span><h3>Application</h3><p>Use the country and the numbers given. Quote a figure with its year.</p></div>
+      <div class="kaae-item"><span class="kaae-tag">A</span><h3>Analysis</h3><p>Chain the logic: cause → mechanism → consequence, three steps minimum.</p></div>
+      <div class="kaae-item"><span class="kaae-tag">E</span><h3>Evaluation</h3><p>Magnitude, time lag, assumptions, trade-offs — then a judgement.</p></div>
+    </div>
+
+    <div class="card builder-card">
+      <div class="card-head"><h2>Outline builder</h2><span class="badge">Uses live data</span></div>
+      <div class="builder-grid">
+        <div class="field">
+          <label class="field-label" for="builder-country">Country</label>
+          <select id="builder-country"></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="builder-topic">Topic</label>
+          <select id="builder-topic"></select>
+        </div>
+        <div class="field">
+          <label class="field-label" for="builder-type">Question type</label>
+          <select id="builder-type">
+            <option value="evaluate">Evaluate / discuss (25)</option>
+            <option value="explain">Explain (8)</option>
+            <option value="assess">Assess the causes (12)</option>
+          </select>
+        </div>
+        <div class="field field-action">
+          <button class="btn btn-primary" id="builder-run">Build outline</button>
+        </div>
+      </div>
+      <div class="builder-output" id="builder-output" hidden>
+        <div class="builder-output-head">
+          <h3 id="builder-title">Outline</h3>
+          <button class="btn btn-ghost btn-small" id="builder-copy">Copy</button>
+        </div>
+        <pre id="builder-text"></pre>
+      </div>
+    </div>
+
+    <div class="section-head"><div><h2>Question bank</h2><p>Past-paper style prompts with a plan you can adapt, not memorise.</p></div></div>
+    <div class="essay-grid" id="essay-bank"></div>
+  </section>
+
+  <!-- ============ DATA ============ -->
+  <section class="view" id="view-data" hidden>
+    <div class="page-head">
+      <p class="eyebrow">Download · coursework · revision tables</p>
+      <h1>Data table</h1>
+      <p class="lede">A clean cross-section of every indicator for the countries you have pinned. Export it to CSV and chart it yourself.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <h2>Latest values</h2>
+        <div class="head-actions">
+          <span class="badge" id="data-count">—</span>
+          <button class="btn btn-ghost btn-small" id="data-csv">Download CSV</button>
+        </div>
+      </div>
+      <div class="chip-select chip-select-wrap" id="data-indicators"></div>
+      <div class="table-wrap">
+        <table class="data-table data-table-wide" id="data-table">
+          <thead></thead><tbody></tbody>
+        </table>
+      </div>
+      <p class="table-foot">Blank cells mean the World Bank has no observation for that year. Values are latest available, not necessarily the current year.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="foot-inner">
+    <div>
+      <strong>Macro Lab</strong>
+      <p>A study tool for Edexcel International A Level Economics. Not affiliated with Pearson Edexcel.</p>
+    </div>
+    <div class="foot-links">
+      <a href="https://data.worldbank.org" target="_blank" rel="noopener">World Bank Data</a>
+      <a href="https://api.worldbank.org/v2/country" target="_blank" rel="noopener">API reference</a>
+      <a href="https://qualifications.pearson.com/en/qualifications/edexcel-international-advanced-levels/economics.html" target="_blank" rel="noopener">IAL Economics spec</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="assets/content.js"></script>
+<script src="assets/app.js"></script>
+</body>
 </html>
