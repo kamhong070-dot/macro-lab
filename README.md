@@ -2,7 +2,7 @@
 
 A free, static study website that helps students revise **Edexcel International A Level Economics (Units 2 & 4)** using **live World Bank data**. No backend, no build step, no dependencies to install — just HTML, CSS and vanilla JavaScript.
 
-**Live demo:** `https://<your-username>.github.io/<repo-name>/` (after you deploy, see below)
+**Live demo:** https://kamhong070-dot.github.io/macro-lab/
 
 ## What it does
 
