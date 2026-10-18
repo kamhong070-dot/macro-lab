@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Macroeconomics Data Portal</title>
+    <link rel="preconnect" href="https://api.worldbank.org">
+    <link href="assets/styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <h1>Macroeconomics Data Portal</h1>
+      <p>World Bank indicators for selected countries</p>
+    </header>
+    <section class="controls">
+      <div class="search">
+        <label for="country-search">Search country</label>
+        <input id="country-search" list="countries-list" placeholder="Type a country name">
+        <datalist id="countries-list"></datalist>
+        <button id="add-country">Add country</button>
+      </div>
+      <div class="compare-tools">
+        <button id="toggle-compare" class="secondary-btn">Enable Comparison Mode</button>
+      </div>
+    </section>
+    <section id="compare-section" class="compare-container hidden">
+      <div class="compare-header">
+        <h3>A-Level Economic Comparison</h3>
+        <p>Compare trends between two countries to analyze development gaps or policy effectiveness.</p>
+      </div>
+      <div class="compare-controls">
+        <select id="compare-1"></select>
+        <span>vs</span>
+        <select id="compare-2"></select>
+        <select id="compare-indicator">
+          <option value="NY.GDP.MKTP.KD.ZG">GDP Growth Rate (%)</option>
+          <option value="FP.CPI.TOTL.ZG">Inflation Rate (%)</option>
+          <option value="SL.UEM.TOTL.ZS">Unemployment (%)</option>
+          <option value="GC.DOD.TOTL.GD.ZS">National Debt (% of GDP)</option>
+        </select>
+        <button id="run-compare">Update Chart</button>
+      </div>
+      <div class="compare-chart">
+        <canvas id="main-compare-chart"></canvas>
+      </div>
+    </section>
+    <main id="cards" class="cards"></main>
+
+    <!-- AI Essay Assistant Sidebar/Panel -->
+    <div id="ai-assistant" class="ai-panel hidden">
+      <div class="ai-header">
+        <h3>AI Essay Assistant</h3>
+        <button id="close-ai" class="close-btn">×</button>
+      </div>
+      <div class="ai-body">
+        <p class="ai-intro">Select a country and a topic to generate an A-Level Economics essay draft using real World Bank data.</p>
+        <div class="ai-controls">
+          <label for="ai-country">Choose Country</label>
+          <select id="ai-country"></select>
+          
+          <label for="ai-prompt">What would you like to ask the AI Agent?</label>
+          <textarea id="ai-prompt" placeholder="e.g. Write an essay evaluating the impact of high inflation on the UK economy..."></textarea>
+          
+          <button id="generate-essay" class="primary-btn">Generate AI Response</button>
+        </div>
+        <div id="essay-output" class="essay-content hidden">
+          <div class="essay-actions">
+            <button id="copy-essay" class="small-btn">Copy to Clipboard</button>
+          </div>
+          <div id="essay-text" class="essay-text"></div>
+        </div>
+      </div>
+    </div>
+
+    <button id="open-ai" class="ai-fab" title="Open AI Essay Assistant">
+      <span>AI Assistant</span>
+    </button>
+
+    <footer class="app-footer">
+      <span>Data source: World Bank API</span>
+    </footer>
+    <script src="assets/app.js"></script>
+  </body>
+</html>
